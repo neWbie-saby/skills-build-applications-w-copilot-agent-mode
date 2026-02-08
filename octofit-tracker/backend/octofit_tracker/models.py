@@ -1,20 +1,23 @@
 from djongo import models
 
+class Team(models.Model):
+    _id = models.ObjectIdField()
+    name = models.CharField(max_length=50, unique=True)
+    members = models.ManyToManyField('User', related_name='team_memberships')
+    class Meta:
+        db_table = 'teams'
+
 class User(models.Model):
+    _id = models.ObjectIdField()
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=100)
-    team = models.CharField(max_length=50)
+    team = models.ForeignKey(Team, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
     is_superhero = models.BooleanField(default=False)
     class Meta:
         db_table = 'users'
 
-class Team(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    members = models.ArrayReferenceField(to=User, on_delete=models.CASCADE)
-    class Meta:
-        db_table = 'teams'
-
 class Activity(models.Model):
+    _id = models.ObjectIdField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     type = models.CharField(max_length=50)
     duration = models.IntegerField()
